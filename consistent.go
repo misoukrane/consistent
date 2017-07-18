@@ -9,14 +9,16 @@ package consistent
 import (
 	"errors"
 	"fmt"
-	"hash/fnv"
 	"math"
 	"sort"
 	"sync"
 	"sync/atomic"
+
+	"github.com/misoukrane/consistent/avalanche"
+	"github.com/misoukrane/consistent/djb2"
 )
 
-const replicationFactor = 10
+const replicationFactor = 3
 
 var ErrNoHosts = errors.New("no hosts added")
 
@@ -254,7 +256,5 @@ func (c *Consistent) delSlice(val uint64) {
 }
 
 func (c *Consistent) hash(key string) uint64 {
-	h := fnv.New64()
-	h.Write([]byte(key))
-	return h.Sum64()
+	return avalanche.Avalanche(djb2.Hash(key))
 }
